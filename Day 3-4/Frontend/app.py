@@ -14,13 +14,13 @@ user_roles = db.Table('user_roles',
     db.Column('role_id', db.Integer, db.ForeignKey('role.role_id', ondelete='CASCADE'), primary_key=True)
 )
 
-# Define the Role model    
+# Define the Role model
 class Role(db.Model):
-    role_id = db.Column(db.Integer, primary_key=True) 
+    role_id = db.Column(db.Integer, primary_key=True)
     role_name = db.Column(db.String(50), nullable=False)
 
     # One-to-many relationship: One role can be assigned to multiple users
-    user = db.relationship('User',secondary=user_roles, backref=db.backref('roles_assigned', lazy=True))  
+    user = db.relationship('User',secondary=user_roles, backref=db.backref('roles_assigned', lazy=True))
 
     def __repr__(self):
         return f"{self.role_id} - {self.role_name}"
@@ -31,7 +31,7 @@ class User(db.Model):
     full_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     gender = db.Column(db.String(10), nullable=False)
-    
+
     roles = db.relationship('Role', secondary=user_roles, backref=db.backref('users_with_role', lazy=True))
 
 
@@ -101,7 +101,7 @@ def view_user_details(user_id):
         return render_template('view_user.html', user=user)
     else:
         return "User not found", 404
-    
+
 @app.route("/update/<int:user_id>", methods=['GET', 'POST'])
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
@@ -137,7 +137,7 @@ def update_user(user_id):
             return jsonify({"error": "User could not be updated. " + str(e)}), 500
 
     return render_template("update.html", user=user, roles=Role.query.all())
-            
+
 @app.route("/delete/<int:user_id>", methods=['GET', 'POST'])
 def delete_user(user_id):
     # Fetch the user by ID
@@ -162,5 +162,3 @@ def delete_user(user_id):
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-  

@@ -1,5 +1,5 @@
 from app import db, app
-from app import Role  
+from app import Role
 
 # Function to add default data
 def add_default_roles():
@@ -29,7 +29,7 @@ def add_default_roles():
         if not existing_role:
             new_role = Role(role_name=role_name)
             db.session.add(new_role)
-    
+
     db.session.commit()
     print("Default roles added successfully!")
 
