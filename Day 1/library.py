@@ -26,20 +26,20 @@ class Library:
         """Displays all books in the library."""
         if not self.books:
             print("There are no books in the library.")
-        else:    
+        else:
             print("Available Books:")
             for book in self.books:
                 print(book)
-    
+
     def view_users(self):
         """Displays all registered users in the library."""
         if not self.users:
             print("No registered users.")
-        else:    
+        else:
             print("Registered Users:")
             for user in self.users:
                 print(user)
-    
+
     def view_currently_available_books(self):
         """Displays only currently available books (not borrowed)."""
         available_books = [book for book in self.books if not book.is_borrowed]

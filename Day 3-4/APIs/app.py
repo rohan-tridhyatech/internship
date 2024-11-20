@@ -223,6 +223,5 @@ def delete_role(role_id):
     else:
         return jsonify({"error": "Role not found"}), 404
 
-
 if __name__ == "__main__":
     app.run(debug=True)

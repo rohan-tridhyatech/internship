@@ -5,7 +5,7 @@ class User:
         self.borrowed_books = []
 
     def __str__(self):
-        return f"User ID: {self.user_id}, Username: {self.name}"    
+        return f"User ID: {self.user_id}, Username: {self.name}"
 
     def borrow_book(self, book):
         """Allows the user to borrow a book if it is not already borrowed."""
@@ -33,4 +33,3 @@ class User:
                 print(f"  - {book.title}")
         else:
             print(f"{self.name} has not borrowed any books.")
-

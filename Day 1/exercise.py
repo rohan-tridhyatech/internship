@@ -7,12 +7,12 @@ while is_continue:
 *********************************************************
 Welcome to Rohan's Calculator
 
-1 --> For Addition      
-2 --> For Subtraction      
-3 --> For Multiplication      
-4 --> For Division      
+1 --> For Addition
+2 --> For Subtraction
+3 --> For Multiplication
+4 --> For Division
 
-*********************************************************        
+*********************************************************
     """)
 
     # Taking the user's choice of operation
@@ -39,10 +39,10 @@ Welcome to Rohan's Calculator
                 print(f"\nThe multiplication of {number1} and {number2} is {calculator.multiplication()}.")
             elif choice == 4:
                 print(f"\nThe division of {number1} by {number2} is {calculator.division()}.")
-        
+
         # Handling invalid inputs if the user enters non-integer values
         except ValueError:
-            print("Invalid input. Please enter valid integers.")    
+            print("Invalid input. Please enter valid integers.")
 
     print("\n\n*********************************************************")
 

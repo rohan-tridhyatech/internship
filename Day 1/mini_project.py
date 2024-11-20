@@ -8,14 +8,14 @@ def display_menu():
 ************************************************************************************
 Welcome to Rohan's Library
 
-1 --> Show all books of Library      
+1 --> Show all books of Library
 2 --> Add Books in Library
-3 --> Remove Books from Library                        
+3 --> Remove Books from Library
 4 --> Show currently available books of Library
 5 --> Show all Users of the Library
 6 --> Register User
 7 --> Borrow Book
-8 --> Return Book                 
+8 --> Return Book
 
 ************************************************************************************
 """)
@@ -37,9 +37,9 @@ while True:
     except ValueError:
         print("Invalid input! Please enter a valid number.")
         continue
-    
+
     print("\n")
-    
+
     match choice:
         case 0:
             # Exit the program
@@ -103,7 +103,7 @@ while True:
                 user.return_book(book)
             except (ValueError, StopIteration):
                 print("Invalid user ID or book ID.")
-        
+
         case _:
             print("Invalid choice! Please enter a valid number.")
 
