@@ -1,0 +1,3 @@
+*.pyv
+*.pyc
+__pycache__/
