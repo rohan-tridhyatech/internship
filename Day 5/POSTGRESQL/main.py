@@ -82,6 +82,7 @@ async def send_order_confirmation(email: str, order_id: int):
     )
     fm = FastMail(conf)
     await fm.send_message(message)
+    print(f"Order confirmation email sent to {email} for Order ID: {order_id}")
     return {"order_id": order_id}
 
 # FastAPI app
