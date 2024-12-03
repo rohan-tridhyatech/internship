@@ -1,7 +1,17 @@
+bcrypt==4.0.1
+email-validator
 fastapi
-sqlmodel
 fastapi-mail
-starlette
-uvicorn
+jose
+passlib
 psycopg2-binary
 pydantic
+python-dotenv
+python-jose
+python-multipart
+sqlmodel
+starlette
+uvicorn
+
+
+# pip install -r requirements.txt
