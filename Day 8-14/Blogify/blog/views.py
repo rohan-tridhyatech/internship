@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.decorators import api_view
@@ -45,14 +46,20 @@ def get_author_by_id(request, pk):
     Retrieve a single author by their ID.
     """
     try:
-        author = Author.objects.get(pk=pk)  # Fetch author by ID
+        # author = Author.objects.get(pk=pk)  # Fetch author by ID
+        author = Author.objects.filter(pk=pk).first()
     except Author.DoesNotExist:
         # Handle invalid ID
-        return Response({"status": 404, "message": "Author not found"})
+        return Response(
+            {"status": 404, "message": "Author not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
     serializer = AuthorSerializer(author)  # Serialize the author
     # Return serialized data
-    return Response({"status": 200, "payload": serializer.data})
+    return Response(
+        {"status": 200, "payload": serializer.data}, status=status.HTTP_200_OK
+    )
 
 
 @api_view(["POST"])
