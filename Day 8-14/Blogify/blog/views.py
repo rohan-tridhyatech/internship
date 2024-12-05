@@ -26,45 +26,12 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 # AUTHOR APIs
-@api_view(['GET'])
+@api_view(["GET"])
 def get_authors(request, pk=None):
     """
     Retrieve all authors or a single author by ID.
     """
-
-
-<< << << < HEAD
-   authors = Author.objects.all()  # Fetch all authors
-    # Serialize list of authors
-    serializer = AuthorSerializer(authors, many=True)
-    # Return serialized data
-    return Response({'status': 200, 'payload': serializer.data})
-
-
-@api_view(['GET'])
-def get_author_by_id(request, pk):
-    """
-    Retrieve a single author by their ID.
-    """
-    try:
-        # author = Author.objects.get(pk=pk)  # Fetch author by ID
-        author = Author.objects.filter(pk=pk).first()
-    except Author.DoesNotExist:
-        # Handle invalid ID
-        return Response(
-            {'status': 404, 'message': 'Author not found'},
-            status=status.HTTP_404_NOT_FOUND,
-        )
-
-    serializer = AuthorSerializer(author)  # Serialize the author
-    # Return serialized data
-    return Response(
-        {'status': 200, 'payload': serializer.data}, status=status.HTTP_200_OK
-    )
-
-
-== == == =
-   if pk:
+    if pk:
         # If ID is provided, retrieve a single author
         try:
             author = Author.objects.get(pk=pk)
@@ -72,24 +39,23 @@ def get_author_by_id(request, pk):
             # Handle the case when the author does not exist
             return Response(
                 {
-                    'status': 404,
-                    'message': f'Author with ID {pk} does not exist.',
-                    'hint': 'Please verify the ID and try again, or create a new author entry.',
+                    "status": 404,
+                    "message": f"Author with ID {pk} does not exist.",
+                    "hint": "Please verify the ID and try again, or create a new author entry.",
                 },
                 status=404,
             )
         serializer = AuthorSerializer(author)  # Serialize the author
-        return Response({'status': 200, 'payload': serializer.data})
+        return Response({"status": 200, "payload": serializer.data})
     else:
         # If no ID is provided, retrieve all authors
         authors = Author.objects.all()
         # Serialize the list of authors
         serializer = AuthorSerializer(authors, many=True)
-        return Response({'status': 200, 'payload': serializer.data})
->>>>>> > bb36db080f7f8b05065fdd226ee89e9d7e067977
+        return Response({"status": 200, "payload": serializer.data})
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def create_author(request):
     """
     Create a new author.
@@ -98,23 +64,23 @@ def create_author(request):
     if not serializer.is_valid():
         return Response(
             {
-                'status': 403,
-                'error': serializer.errors,
-                'message': 'Invalid data',
+                "status": 403,
+                "error": serializer.errors,
+                "message": "Invalid data",
             },
         )  # Handle validation errors
 
     serializer.save()  # Save the new author
     return Response(
         {
-            'status': 200,
-            'payload': serializer.data,
-            'message': 'Author created successfully',
+            "status": 200,
+            "payload": serializer.data,
+            "message": "Author created successfully",
         },
     )
 
 
-@api_view(['PUT'])
+@api_view(["PUT"])
 def update_author(request, pk):
     """
     Update an existing author by ID.
@@ -123,7 +89,7 @@ def update_author(request, pk):
         author = Author.objects.get(pk=pk)  # Fetch author by ID
     except Author.DoesNotExist:
         # Handle invalid ID
-        return Response({'status': 404, 'message': 'Author not found'})
+        return Response({"status": 404, "message": "Author not found"})
 
     serializer = AuthorSerializer(
         instance=author,
@@ -133,23 +99,23 @@ def update_author(request, pk):
     if not serializer.is_valid():
         return Response(
             {
-                'status': 403,
-                'error': serializer.errors,
-                'message': 'Invalid data',
+                "status": 403,
+                "error": serializer.errors,
+                "message": "Invalid data",
             },
         )  # Handle validation errors
 
     serializer.save()  # Save updated author
     return Response(
         {
-            'status': 200,
-            'payload': serializer.data,
-            'message': 'Author updated successfully',
+            "status": 200,
+            "payload": serializer.data,
+            "message": "Author updated successfully",
         },
     )
 
 
-@api_view(['DELETE'])
+@api_view(["DELETE"])
 def delete_author(request, pk):
     """
     Delete an author by ID.
@@ -160,9 +126,9 @@ def delete_author(request, pk):
         # Return a detailed response for an invalid ID
         return Response(
             {
-                'status': 404,
-                'message': f'Author with ID {pk} not found.',
-                'hint': 'Please check the ID and try again.',
+                "status": 404,
+                "message": f"Author with ID {pk} not found.",
+                "hint": "Please check the ID and try again.",
             },
             status=404,
         )
@@ -170,15 +136,15 @@ def delete_author(request, pk):
     author.delete()  # Delete the author
     return Response(
         {
-            'status': 200,
-            'message': f'Author with ID {pk} deleted successfully.',
+            "status": 200,
+            "message": f"Author with ID {pk} deleted successfully.",
         },
         status=200,
     )
 
 
 # POST APIs
-@api_view(['GET'])
+@api_view(["GET"])
 def get_posts(request, pk=None):
     """
     Retrieve all posts or a single post by its ID.
@@ -186,24 +152,26 @@ def get_posts(request, pk=None):
     if pk:
         # Fetch a single post by ID
         try:
-            post = Post.objects.select_related('author').get(pk=pk)
+            post = Post.objects.select_related("author").get(pk=pk)
         except Post.DoesNotExist:
             # Handle invalid post ID
-            return Response({'status': 404, 'message': 'Post not found'}, status=404)
+            return Response({"status": 404, "message": "Post not found"}, status=404)
 
         serializer = PostReadSerializer(post)  # Serialize the post
-        return Response({'status': 200, 'payload': serializer.data})
+        return Response({"status": 200, "payload": serializer.data})
 
     else:
         # Fetch all posts
         # Fetch posts with related authors
-        posts = Post.objects.select_related('author').all()
+        posts = Post.objects.select_related("author").all()
         serializer = PostReadSerializer(
-            posts, many=True)  # Serialize list of posts
-        return Response({'status': 200, 'payload': serializer.data})
+            posts,
+            many=True,
+        )  # Serialize list of posts
+        return Response({"status": 200, "payload": serializer.data})
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def get_posts_by_author(request, author_id):
     """
     Retrieve all posts by a specific author.
@@ -214,7 +182,7 @@ def get_posts_by_author(request, author_id):
         author = Author.objects.get(pk=author_id)
     except Author.DoesNotExist:
         # Handle invalid author ID
-        return Response({'status': 404, 'message': 'Author not found'})
+        return Response({"status": 404, "message": "Author not found"})
 
     # Fetch posts by the author using the foreign key relationship
     # Filter posts that belong to this author
@@ -223,36 +191,37 @@ def get_posts_by_author(request, author_id):
     serializer = PostReadSerializer(posts, many=True)
 
     # Return the serialized posts
-    return Response({'status': 200, 'payload': serializer.data})
+    return Response({"status": 200, "payload": serializer.data})
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def create_post(request):
     """
     Create a new post.
     """
     serializer = PostCreateSerializer(
-        data=request.data)  # Deserialize input data
+        data=request.data,
+    )  # Deserialize input data
     if not serializer.is_valid():
         return Response(
             {
-                'status': 403,
-                'error': serializer.errors,
-                'message': 'Invalid data',
+                "status": 403,
+                "error": serializer.errors,
+                "message": "Invalid data",
             },
         )  # Handle validation errors
 
     serializer.save()  # Save the new post
     return Response(
         {
-            'status': 200,
-            'payload': serializer.data,
-            'message': 'Post created successfully',
+            "status": 200,
+            "payload": serializer.data,
+            "message": "Post created successfully",
         },
     )
 
 
-@api_view(['PUT'])
+@api_view(["PUT"])
 def update_post(request, pk):
     """
     Update an existing post by ID.
@@ -261,7 +230,7 @@ def update_post(request, pk):
         post = Post.objects.get(pk=pk)  # Fetch post by ID
     except Post.DoesNotExist:
         # Handle invalid ID
-        return Response({'status': 404, 'message': 'Post not found'})
+        return Response({"status": 404, "message": "Post not found"})
 
     serializer = PostCreateSerializer(
         instance=post,
@@ -271,23 +240,23 @@ def update_post(request, pk):
     if not serializer.is_valid():
         return Response(
             {
-                'status': 403,
-                'error': serializer.errors,
-                'message': 'Invalid data',
+                "status": 403,
+                "error": serializer.errors,
+                "message": "Invalid data",
             },
         )  # Handle validation errors
 
     serializer.save()  # Save updated post
     return Response(
         {
-            'status': 200,
-            'payload': serializer.data,
-            'message': 'Post updated successfully',
+            "status": 200,
+            "payload": serializer.data,
+            "message": "Post updated successfully",
         },
     )
 
 
-@api_view(['DELETE'])
+@api_view(["DELETE"])
 def delete_post(request, pk):
     """
     Delete a post by ID.
@@ -296,7 +265,7 @@ def delete_post(request, pk):
         post = Post.objects.get(pk=pk)  # Fetch post by ID
     except Post.DoesNotExist:
         # Handle invalid ID
-        return Response({'status': 404, 'message': 'Post not found'})
+        return Response({"status": 404, "message": "Post not found"})
 
     post.delete()  # Delete the post
-    return Response({'status': 200, 'message': 'Post deleted successfully'})
+    return Response({"status": 200, "message": "Post deleted successfully"})
