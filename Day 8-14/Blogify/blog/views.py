@@ -25,34 +25,33 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 # AUTHOR APIs
-
-
 @api_view(["GET"])
-def read_author(request):
+def get_authors(request, pk=None):
     """
-    Retrieve all authors.
+    Retrieve all authors or a single author by ID.
     """
-    authors = Author.objects.all()  # Fetch all authors
-    # Serialize list of authors
-    serializer = AuthorSerializer(authors, many=True)
-    # Return serialized data
-    return Response({"status": 200, "payload": serializer.data})
-
-
-@api_view(["GET"])
-def get_author_by_id(request, pk):
-    """
-    Retrieve a single author by their ID.
-    """
-    try:
-        author = Author.objects.get(pk=pk)  # Fetch author by ID
-    except Author.DoesNotExist:
-        # Handle invalid ID
-        return Response({"status": 404, "message": "Author not found"})
-
-    serializer = AuthorSerializer(author)  # Serialize the author
-    # Return serialized data
-    return Response({"status": 200, "payload": serializer.data})
+    if pk:
+        # If ID is provided, retrieve a single author
+        try:
+            author = Author.objects.get(pk=pk)
+        except Author.DoesNotExist:
+            # Handle the case when the author does not exist
+            return Response(
+                {
+                    "status": 404,
+                    "message": f"Author with ID {pk} does not exist.",
+                    "hint": "Please verify the ID and try again, or create a new author entry.",
+                },
+                status=404,
+            )
+        serializer = AuthorSerializer(author)  # Serialize the author
+        return Response({"status": 200, "payload": serializer.data})
+    else:
+        # If no ID is provided, retrieve all authors
+        authors = Author.objects.all()
+        # Serialize the list of authors
+        serializer = AuthorSerializer(authors, many=True)
+        return Response({"status": 200, "payload": serializer.data})
 
 
 @api_view(["POST"])
@@ -123,41 +122,49 @@ def delete_author(request, pk):
     try:
         author = Author.objects.get(pk=pk)  # Fetch author by ID
     except Author.DoesNotExist:
-        # Handle invalid ID
-        return Response({"status": 404, "message": "Author not found"})
+        # Return a detailed response for an invalid ID
+        return Response(
+            {
+                "status": 404,
+                "message": f"Author with ID {pk} not found.",
+                "hint": "Please check the ID and try again.",
+            },
+            status=404,
+        )
 
     author.delete()  # Delete the author
-    return Response({"status": 200, "message": "Author deleted successfully"})
+    return Response(
+        {
+            "status": 200,
+            "message": f"Author with ID {pk} deleted successfully.",
+        },
+        status=200,
+    )
 
 
 # POST APIs
 @api_view(["GET"])
-def read_posts(request):
+def get_posts(request, pk=None):
     """
-    Retrieve all posts.
+    Retrieve all posts or a single post by its ID.
     """
-    posts = Post.objects.select_related(
-        "author",
-    ).all()  # Fetch posts with related authors
-    serializer = PostReadSerializer(posts, many=True)  # Serialize list of posts
-    # Return serialized data
-    return Response({"status": 200, "payload": serializer.data})
+    if pk:
+        # Fetch a single post by ID
+        try:
+            post = Post.objects.select_related("author").get(pk=pk)
+        except Post.DoesNotExist:
+            # Handle invalid post ID
+            return Response({"status": 404, "message": "Post not found"}, status=404)
 
+        serializer = PostReadSerializer(post)  # Serialize the post
+        return Response({"status": 200, "payload": serializer.data})
 
-@api_view(["GET"])
-def get_post_by_id(request, pk):
-    """
-    Retrieve a single post by its ID.
-    """
-    try:
-        post = Post.objects.select_related("author").get(pk=pk)  # Fetch post by ID
-    except Post.DoesNotExist:
-        # Handle invalid ID
-        return Response({"status": 404, "message": "Post not found"})
-
-    serializer = PostReadSerializer(post)  # Serialize the post
-    # Return serialized data
-    return Response({"status": 200, "payload": serializer.data})
+    else:
+        # Fetch all posts
+        # Fetch posts with related authors
+        posts = Post.objects.select_related("author").all()
+        serializer = PostReadSerializer(posts, many=True)  # Serialize list of posts
+        return Response({"status": 200, "payload": serializer.data})
 
 
 @api_view(["GET"])

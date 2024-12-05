@@ -16,10 +16,11 @@ class AuthorSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if "name" in data:
             for char in data["name"]:
-                if not char.isalpha():  # Checking if all characters are alphabetic
-                    raise serializers.ValidationError(
-                        {"Error": "Name can only contain alphabetic characters."},
-                    )
+                if char != " ":
+                    if not char.isalpha():  # Checking if all characters are alphabetic
+                        raise serializers.ValidationError(
+                            {"Error": "Name can only contain alphabetic characters."},
+                        )
         return data
 
 
