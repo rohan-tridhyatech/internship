@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from django.db import models
 
 
@@ -19,3 +17,4 @@ class Post(models.Model):
 
     def __str__(self) -> str:
         return f"{self.title} -> {self.author}"
+    

@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.urls import include
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from .views import *
 from .views import AuthorViewSet
 from .views import PostViewSet
@@ -31,9 +31,9 @@ router.register(r"posts", PostViewSet)
 
 urlpatterns = [
     path("api/", include(router.urls)),  # Register the router URLs
-    path(
-        "api/posts/by-author/<int:author_id>/",
-        get_posts_by_author,
-        name="get_posts_by_author",
-    ),
+    path("api/posts/by-author/<int:author_id>/", get_posts_by_author, name="get_posts_by_author"),
+    path('api/token/',include("rest_framework.urls") , name='token_obtain_pair'),
+    # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify')
 ]
