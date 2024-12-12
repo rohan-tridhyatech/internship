@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Added Manually
     "rest_framework",  # DRF
     "blog",  # blog app
     "rest_framework_simplejwt",
@@ -130,6 +131,8 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
+## Added Manually ##
+
 # Custom User model
 AUTH_USER_MODEL = "blog.User"  # Set custom user model
 
@@ -138,6 +141,15 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "2/day",  # General default for unauthenticated users
+        "user": "5/day",  # General default for authenticated users
+        "jwt_tokens": "10/hour",  # Limit for JWT-related endpoints
+    },
 }
 
 SIMPLE_JWT = {

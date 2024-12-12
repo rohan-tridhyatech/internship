@@ -17,8 +17,15 @@ class UserSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
-    )  # Allows setting the user by primary key
+    )
 
     class Meta:
         model = Post
         fields = ["id", "title", "content", "author", "created_at", "updated_at"]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["formatted_created_at"] = instance.created_at.strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        return representation

@@ -43,8 +43,8 @@ class PostRolePermission(BasePermission):
         user = request.user
 
         # Allow read-only access for unauthenticated users
-        if request.method in SAFE_METHODS:
-            return True
+        if not user.is_authenticated:
+            return request.method == "GET"
 
         # If the request method is safe (e.g., GET), allow access
         if request.method in SAFE_METHODS:
