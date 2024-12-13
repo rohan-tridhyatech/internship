@@ -11,28 +11,29 @@ from rest_framework_simplejwt.views import TokenVerifyView
 from .views import PostViewSet
 from .views import UserViewSet
 
-
+# Custom throttled view for obtaining JWT tokens
 class ThrottledTokenObtainPairView(TokenObtainPairView):
-    throttle_classes = [ScopedRateThrottle]
-    throttle_scope = "jwt_tokens"
+    throttle_classes = [ScopedRateThrottle] 
+    throttle_scope = "jwt_tokens" 
 
-
+# Custom throttled view for refreshing JWT tokens
 class ThrottledTokenRefreshView(TokenRefreshView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "jwt_tokens"
 
-
+# Custom throttled view for verifying JWT tokens
 class ThrottledTokenVerifyView(TokenVerifyView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "jwt_tokens"
 
-
+# Register viewsets with the router
 router = DefaultRouter()
-router.register(r"users", UserViewSet)
-router.register(r"posts", PostViewSet)
+router.register(r"users", UserViewSet) 
+router.register(r"posts", PostViewSet) 
 
+# URL patterns for the API
 urlpatterns = [
-    path("api/", include(router.urls)),
+    path("api/", include(router.urls)),  # Include router-generated URLs
     path(
         "api/token/", ThrottledTokenObtainPairView.as_view(), name="token_obtain_pair"
     ),
@@ -42,4 +43,3 @@ urlpatterns = [
     path("api/token/verify/", ThrottledTokenVerifyView.as_view(), name="token_verify"),
 ]
 
-# GET /posts/by-author/<author_id>/

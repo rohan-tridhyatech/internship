@@ -41,10 +41,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Added Manually
-    "rest_framework",  # DRF
-    "blog",  # blog app
-    "rest_framework_simplejwt",
+    # Manually added apps
+    "rest_framework",  # Django REST Framework
+    "blog",  # Custom blog application
+    "rest_framework_simplejwt",  # Simple JWT for token-based authentication
 ]
 
 MIDDLEWARE = [
@@ -133,29 +133,31 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ## Added Manually ##
 
+
 # Custom User model
-AUTH_USER_MODEL = "blog.User"  # Set custom user model
+AUTH_USER_MODEL = "blog.User"  # Set custom user model to 'blog.User'
 
-
+# Django REST Framework settings
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",  # Use JWT for authentication
     ),
-    "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
+    "DEFAULT_THROTTLE_CLASSES": [  # Throttling classes for rate limiting
+        "rest_framework.throttling.AnonRateThrottle",  # Throttle for unauthenticated users
+        "rest_framework.throttling.UserRateThrottle",  # Throttle for authenticated users
     ],
-    "DEFAULT_THROTTLE_RATES": {
-        "anon": "2/day",  # General default for unauthenticated users
-        "user": "5/day",  # General default for authenticated users
-        "jwt_tokens": "10/hour",  # Limit for JWT-related endpoints
+    "DEFAULT_THROTTLE_RATES": {  # Define throttle rates
+        "anon": "1000/day",  # General rate limit for unauthenticated users
+        "user": "1000/day",  # General rate limit for authenticated users
+        "jwt_tokens": "1000/hour",  # Rate limit for JWT-related endpoints
     },
 }
 
+# SIMPLE_JWT settings for JWT authentication
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
-    "UPDATE_LAST_LOGIN": False,
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),  # Access token lifespan of 1 day
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),  # Refresh token lifespan of 2 days
+    "ROTATE_REFRESH_TOKENS": False,  # Do not rotate refresh tokens
+    "BLACKLIST_AFTER_ROTATION": False,  # Do not blacklist tokens after rotation
+    "UPDATE_LAST_LOGIN": False,  # Do not update last login field
 }

@@ -4,14 +4,14 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-
+# Custom User model extending AbstractUser
 class User(AbstractUser):
     ROLE_CHOICES = [
         ("user", "User"),
         ("admin", "Admin"),
         ("author", "Author"),
     ]
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=False)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=False)  
 
     def save(self, *args, **kwargs):
         # Set permissions based on the role
@@ -28,13 +28,12 @@ class User(AbstractUser):
         if not self.password.startswith(("pbkdf2_", "argon2$", "bcrypt$")):
             self.set_password(self.password)  # Hash the password
 
-        # Call the parent class's save method
         super().save(*args, **kwargs)
 
-
+# Model for blog posts
 class Post(models.Model):
-    title = models.CharField(max_length=100)
-    content = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    title = models.CharField(max_length=100) 
+    content = models.TextField() 
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts") 
+    created_at = models.DateTimeField(auto_now_add=True)  
+    updated_at = models.DateTimeField(auto_now=True)  
