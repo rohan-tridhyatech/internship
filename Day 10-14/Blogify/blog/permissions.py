@@ -3,7 +3,7 @@ from __future__ import annotations
 from rest_framework.permissions import BasePermission
 from rest_framework.permissions import SAFE_METHODS
 
-
+# Custom permission to grant different access based on user role
 class UserRolePermission(BasePermission):
     """
     Custom permission to grant different access based on user role.
@@ -29,7 +29,7 @@ class UserRolePermission(BasePermission):
 
         return False  # Default deny access
 
-
+# Custom permission for handling post actions
 class PostRolePermission(BasePermission):
     """
     Custom permission for handling post actions.
@@ -73,5 +73,6 @@ class PostRolePermission(BasePermission):
         # For unsafe methods, check if the user is the author of the post
         user = request.user
         if user.is_authenticated:
-            return obj.author == user
+            return obj.author == user or user.role == "admin"
+
         return False
