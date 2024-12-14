@@ -11,6 +11,7 @@ from .serializers import PostSerializer
 from .serializers import UserSerializer
 
 
+# User Model
 class UserModelTest(TestCase):
     def test_user_creation(self):
         # Creating different users with varying roles
@@ -36,7 +37,7 @@ class UserModelTest(TestCase):
         self.assertEqual(author2.email, "author2@example.com")
         self.assertEqual(author2.role, "author")
 
-
+# Post Model
 class PostModelTest(TestCase):
     def test_multiple_post_creation(self):
         # Creating authors
@@ -56,7 +57,7 @@ class PostModelTest(TestCase):
         self.assertEqual(post2.content, "Content of the test post by author2")
         self.assertEqual(post2.author, author2)
 
-
+# User Serializer
 class UserSerializerTest(APITestCase):
     def test_user_serializer(self):
         # Creating a User instance
@@ -67,7 +68,7 @@ class UserSerializerTest(APITestCase):
         self.assertEqual(data["username"], "user")
         self.assertEqual(data["email"], "user@example.com")
 
-
+# Post Serializer
 class PostSerializerTest(APITestCase):
     def test_post_serializer(self):
         # Creating a User instance
@@ -81,154 +82,128 @@ class PostSerializerTest(APITestCase):
         self.assertEqual(data["content"], "Content of the test post")
         self.assertEqual(data["author"], user.id)
 
+# Model : Users, Role : Admin
+class UserAdminTest(APITestCase):
 
+    def setUp(self):
+        self.admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
+        self.user = User.objects.create(username="user", email="user@example.com", role="user")
+        self.refresh = RefreshToken.for_user(self.admin)
+        self.access_token = str(self.refresh.access_token)
 
-class UserCreateAdminTest(APITestCase):
     def test_create_user_as_admin(self):
-        admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
-        refresh = RefreshToken.for_user(admin)
-        access_token = str(refresh.access_token)
-        
         url = '/api/users/'
         data = {
             "username": "newuser",
             "email": "newuser@example.com",
             "password": "password123",
-            "role":"admin"
+            "role": "admin"
         }
-        
-        self.client.force_authenticate(user=admin, token=access_token)
+
+        self.client.force_authenticate(user=self.admin, token=self.access_token)
         response = self.client.post(url, data)
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(User.objects.count(), 2)
+        self.assertEqual(User.objects.count(), 3)
         self.assertEqual(User.objects.get(username="newuser").email, "newuser@example.com")
 
-
-class UserRetrieveAdminTest(APITestCase):
     def test_retrieve_user_as_admin(self):
-        admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        refresh = RefreshToken.for_user(admin)
-        access_token = str(refresh.access_token)
-        
         url = '/api/users/'
-        
-        self.client.force_authenticate(user=admin, token=access_token)
+
+        self.client.force_authenticate(user=self.admin, token=self.access_token)
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) > 0)
-        
-class UserUpdateAdminTest(APITestCase):
-    def test_update_user_as_admin(self):
-        admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        refresh = RefreshToken.for_user(admin)
-        access_token = str(refresh.access_token)
-        
-        url = f'/api/users/{user.id}/'
-        data = {"email": "updatedemail@example.com"}
-        
-        self.client.force_authenticate(user=admin, token=access_token)
-        response = self.client.patch(url, data)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        user.refresh_from_db()
-        self.assertEqual(user.email, "updatedemail@example.com")
 
-class UserDeleteAdminTest(APITestCase):
+    def test_update_user_as_admin(self):
+        url = f'/api/users/{self.user.id}/'
+        data = {"email": "updatedemail@example.com"}
+
+        self.client.force_authenticate(user=self.admin, token=self.access_token)
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "updatedemail@example.com")
+
     def test_delete_user_as_admin(self):
-        admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        refresh = RefreshToken.for_user(admin)
-        access_token = str(refresh.access_token)
-        
-        url = f'/api/users/{user.id}/'
-        
-        self.client.force_authenticate(user=admin, token=access_token)
+        url = f'/api/users/{self.user.id}/'
+
+        self.client.force_authenticate(user=self.admin, token=self.access_token)
         response = self.client.delete(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(User.objects.count(), 1)
 
-class PostCreateAdminTest(APITestCase):
+# Model : Posts, Role : Admin
+class PostAdminTest(APITestCase):
+
+    def setUp(self):
+        self.admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
+        self.author = User.objects.create(username="author", email="author@example.com", role="author")
+        self.refresh = RefreshToken.for_user(self.admin)
+        self.access_token = str(self.refresh.access_token)
+
     def test_create_post_as_admin(self):
-        admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        refresh = RefreshToken.for_user(admin)
-        access_token = str(refresh.access_token)
-        
         url = '/api/posts/'
         data = {
             "title": "Test Post",
             "content": "Content of the test post",
-            "author": author.id
+            "author": self.author.id
         }
-        
-        self.client.force_authenticate(user=admin, token=access_token)
+
+        self.client.force_authenticate(user=self.admin, token=self.access_token)
         response = self.client.post(url, data)
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Post.objects.count(), 1)
         self.assertEqual(Post.objects.get(title="Test Post").content, "Content of the test post")
 
-class PostRetrieveAdminTest(APITestCase):
     def test_retrieve_post_as_admin(self):
-        admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        post = Post.objects.create(title="Test Post", content="Content of the test post", author=author)
-        refresh = RefreshToken.for_user(admin)
-        access_token = str(refresh.access_token)
+        post = Post.objects.create(title="Test Post", content="Content of the test post", author=self.author)
         
         url = f'/api/posts/{post.id}/'
         
-        self.client.force_authenticate(user=admin, token=access_token)
+        self.client.force_authenticate(user=self.admin, token=self.access_token)
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["title"], "Test Post")
 
-class PostUpdateAdminTest(APITestCase):
     def test_update_post_as_admin(self):
-        admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        post = Post.objects.create(title="Test Post", content="Content of the test post", author=author)
-        refresh = RefreshToken.for_user(admin)
-        access_token = str(refresh.access_token)
+        post = Post.objects.create(title="Test Post", content="Content of the test post", author=self.author)
         
         url = f'/api/posts/{post.id}/'
         data = {"content": "Updated content"}
-        
-        self.client.force_authenticate(user=admin, token=access_token)
+
+        self.client.force_authenticate(user=self.admin, token=self.access_token)
         response = self.client.patch(url, data)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         post.refresh_from_db()
         self.assertEqual(post.content, "Updated content")
-        self.assertEqual(post.author.role, "author") 
 
-class PostDeleteAdminTest(APITestCase):
     def test_delete_post_as_admin(self):
-        admin = User.objects.create(username="admin", email="admin@example.com", role="admin")
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        post = Post.objects.create(title="Test Post", content="Content of the test post", author=author)
-        refresh = RefreshToken.for_user(admin)
-        access_token = str(refresh.access_token)
+        post = Post.objects.create(title="Test Post", content="Content of the test post", author=self.author)
         
         url = f'/api/posts/{post.id}/'
-        
-        self.client.force_authenticate(user=admin, token=access_token)
+
+        self.client.force_authenticate(user=self.admin, token=self.access_token)
         response = self.client.delete(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Post.objects.count(), 0)
 
-class UserCreateAuthorTest(APITestCase):
+# Model : Users, Role : Author
+class UserAuthorTest(APITestCase):
+
+    def setUp(self):
+        self.author = User.objects.create(username="author", email="author@example.com", role="author")
+        self.refresh = RefreshToken.for_user(self.author)
+        self.access_token = str(self.refresh.access_token)
+
     def test_create_user_as_author(self):
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        refresh = RefreshToken.for_user(author)
-        access_token = str(refresh.access_token)
-        
         url = '/api/users/'
         data = {
             "username": "newauthor",
@@ -236,154 +211,117 @@ class UserCreateAuthorTest(APITestCase):
             "password": "password123",
             "role": "author"
         }
-        
-        self.client.force_authenticate(user=author, token=access_token)
+
+        self.client.force_authenticate(user=self.author, token=self.access_token)
         response = self.client.post(url, data)
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 2)
-        self.assertEqual(User.objects.get(username="newauthor").email, "newauthor@example.com")
 
-class UserRetrieveAuthorTest(APITestCase):
     def test_retrieve_user_as_author(self):
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        refresh = RefreshToken.for_user(author)
-        access_token = str(refresh.access_token)
-        
         url = '/api/users/'
-        
-        self.client.force_authenticate(user=author, token=access_token)
+
+        self.client.force_authenticate(user=self.author, token=self.access_token)
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-class UserUpdateAuthorTest(APITestCase):
     def test_update_user_as_author(self):
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        refresh = RefreshToken.for_user(author)
-        access_token = str(refresh.access_token)
-        
-        url = f'/api/users/{author.id}/'
+        url = f'/api/users/{self.author.id}/'
         data = {"email": "updatedauthor@example.com"}
-        
-        self.client.force_authenticate(user=author, token=access_token)
-        response = self.client.put(url, data)
-        
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        author.refresh_from_db()
-        self.assertEqual(author.email, "author@example.com")
 
-class UserDeleteAuthorTest(APITestCase):
+        self.client.force_authenticate(user=self.author, token=self.access_token)
+        response = self.client.put(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.author.refresh_from_db()
+        self.assertEqual(self.author.email, "author@example.com")
+
     def test_delete_user_as_author(self):
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        refresh = RefreshToken.for_user(author)
-        access_token = str(refresh.access_token)
-        
-        url = f'/api/users/{author.id}/'
-        
-        self.client.force_authenticate(user=author, token=access_token)
+        url = f'/api/users/{self.author.id}/'
+
+        self.client.force_authenticate(user=self.author, token=self.access_token)
         response = self.client.delete(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(User.objects.count(), 1)
 
-class PostCreateAuthorTest(APITestCase):
+# Model : Posts, Role : Author
+class PostAuthorTest(APITestCase):
+
+    def setUp(self):
+        self.author = User.objects.create(username="author", email="author@example.com", role="author")
+        self.other_author = User.objects.create(username="otherauthor", email="otherauthor@example.com", role="author")
+        self.refresh = RefreshToken.for_user(self.author)
+        self.access_token = str(self.refresh.access_token)
+
     def test_create_post_as_author(self):
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        refresh = RefreshToken.for_user(author)
-        access_token = str(refresh.access_token)
-        
         url = '/api/posts/'
         data = {
             "title": "Author Post",
             "content": "This is a post by an author",
-            "author": author.id
+            "author": self.author.id
         }
-        
-        self.client.force_authenticate(user=author, token=access_token)
+
+        self.client.force_authenticate(user=self.author, token=self.access_token)
         response = self.client.post(url, data)
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Post.objects.count(), 1)
         self.assertEqual(Post.objects.get(title="Author Post").content, "This is a post by an author")
 
-
-class PostRetrieveAuthorTest(APITestCase):
     def test_retrieve_post_as_author(self):
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        post = Post.objects.create(title="Author Post", content="Content of author's post", author=author)
-        refresh = RefreshToken.for_user(author)
-        access_token = str(refresh.access_token)
-        
+        post = Post.objects.create(title="Author Post", content="Content of author's post", author=self.author)
         url = f'/api/posts/{post.id}/'
-        
-        self.client.force_authenticate(user=author, token=access_token)
+
+        self.client.force_authenticate(user=self.author, token=self.access_token)
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["title"], "Author Post")
 
-class PostUpdateAuthorTest(APITestCase):
     def test_update_post_as_author(self):
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        other_author = User.objects.create(username="otherauthor", email="otherauthor@example.com", role="author")
-        post = Post.objects.create(title="Author Post", content="Content of author's post", author=author)
-        refresh = RefreshToken.for_user(author)
-        access_token = str(refresh.access_token)
-        
+        post = Post.objects.create(title="Author Post", content="Content of author's post", author=self.author)
         url = f'/api/posts/{post.id}/'
         data = {"content": "Updated content for own post"}
-        
-        self.client.force_authenticate(user=author, token=access_token)
+
+        self.client.force_authenticate(user=self.author, token=self.access_token)
         response = self.client.patch(url, data)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         post.refresh_from_db()
         self.assertEqual(post.content, "Updated content for own post")
 
         # Attempt to update other's post
-        refresh_other = RefreshToken.for_user(other_author)
-        access_token_other = str(refresh_other.access_token)
-        self.client.force_authenticate(user=other_author, token=access_token_other)
-        
-        url_other = f'/api/posts/{post.id}/'
-        response_other = self.client.patch(url_other, data)
-        
+        self.client.force_authenticate(user=self.other_author, token=self.access_token)
+        response_other = self.client.patch(url, data)
         self.assertEqual(response_other.status_code, status.HTTP_403_FORBIDDEN)
-        
-class PostDeleteAuthorTest(APITestCase):
+
     def test_delete_post_as_author(self):
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        other_author = User.objects.create(username="otherauthor", email="otherauthor@example.com", role="author")
-        post = Post.objects.create(title="Author Post", content="Content of author's post", author=author)
-               
+        post = Post.objects.create(title="Author Post", content="Content of author's post", author=self.author)
+
         # Attempt to delete other's post
-        refresh_other = RefreshToken.for_user(other_author)
-        access_token_other = str(refresh_other.access_token)
-        self.client.force_authenticate(user=other_author, token=access_token_other)
-        
+        self.client.force_authenticate(user=self.other_author, token=self.access_token)
         url_other = f'/api/posts/{post.id}/'
         response_other = self.client.delete(url_other)
-        
         self.assertEqual(response_other.status_code, status.HTTP_403_FORBIDDEN)
-        
+
         # Attempt to delete own post
-        refresh = RefreshToken.for_user(author)
-        access_token = str(refresh.access_token)        
+        self.client.force_authenticate(user=self.author, token=self.access_token)
         url = f'/api/posts/{post.id}/'
-        
-        self.client.force_authenticate(user=author, token=access_token)
         response = self.client.delete(url)
-        
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Post.objects.count(), 0)
 
-class UserCreateTest(APITestCase):
+# Model : Users, Role : User
+class UserTest(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="user", email="user@example.com", role="user")
+        self.refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(self.refresh.access_token)
+
     def test_create_user_as_user(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        
         url = '/api/users/'
         data = {
             "username": "newuser",
@@ -391,111 +329,96 @@ class UserCreateTest(APITestCase):
             "password": "password123",
             "role": "user"
         }
-        
-        self.client.force_authenticate(user=user, token=access_token)
+
+        self.client.force_authenticate(user=self.user, token=self.access_token)
         response = self.client.post(url, data)
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 2)
-        self.assertEqual(User.objects.get(username="newuser").email, "newuser@example.com")
 
-
-class UserRetrieveTest(APITestCase):
     def test_retrieve_user_as_user(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        
         url = '/api/users/'
-        
-        self.client.force_authenticate(user=user, token=access_token)
+
+        self.client.force_authenticate(user=self.user, token=self.access_token)
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-class UserUpdateTest(APITestCase):
     def test_update_user_as_user(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        
-        url = f'/api/users/{user.id}/'
+        url = f'/api/users/{self.user.id}/'
         data = {"email": "updateduser@example.com"}
-        
-        self.client.force_authenticate(user=user, token=access_token)
+
+        self.client.force_authenticate(user=self.user, token=self.access_token)
         response = self.client.put(url, data)
-        
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        user.refresh_from_db()
-        self.assertEqual(user.email, "user@example.com")
-        
-class UserDeleteTest(APITestCase):
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "user@example.com")
+
     def test_delete_user_as_user(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        
-        url = f'/api/users/{user.id}/'
-        
-        self.client.force_authenticate(user=user, token=access_token)
+        url = f'/api/users/{self.user.id}/'
+
+        self.client.force_authenticate(user=self.user, token=self.access_token)
         response = self.client.delete(url)
-        
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(User.objects.count(), 1)
 
-class PostCreateUserTest(APITestCase):
+# Model : Posts, Role : User
+class PostTest(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="user", email="user@example.com", role="user")
+        self.author = User.objects.create(username="author", email="author@example.com", role="author")
+        self.post = Post.objects.create(title="Author Post", content="Content of author's post", author=self.author)
+        self.refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(self.refresh.access_token)
+
     def test_create_post_as_user(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        
         url = '/api/posts/'
         data = {
             "title": "User Post",
             "content": "This is a post by a user",
-            "author": user.id
+            "author": self.user.id
         }
-        
-        self.client.force_authenticate(user=user, token=access_token)
+
+        self.client.force_authenticate(user=self.user, token=self.access_token)
         response = self.client.post(url, data)
-        
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(Post.objects.count(), 0)
 
-class PostRetrieveUserTest(APITestCase):
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Post.objects.count(), 1)
+
     def test_retrieve_post_as_user(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        post = Post.objects.create(title="User Post", content="Content of user's post", author=author)
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        
-        url = f'/api/posts/{post.id}/'
-        
-        self.client.force_authenticate(user=user, token=access_token)
-        response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["title"], "User Post")
-        
-class PostUpdateUserTest(APITestCase):
-    def test_update_post_as_user(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        author = User.objects.create(username="author", email="author@example.com", role="author")
-        post = Post.objects.create(title="User Post", content="Content of user's post", author=author)
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        
-        url = f'/api/posts/{post.id}/'
-        data = {"content": "Updated content for own post"}
-        
-        self.client.force_authenticate(user=user, token=access_token)
-        response = self.client.patch(url, data)
-        
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(post.content, "Content of user's post" )
+        url = f'/api/posts/{self.post.id}/'
 
-class UserCreateUnauthorizedTest(APITestCase):
+        self.client.force_authenticate(user=self.user, token=self.access_token)
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["title"], "Author Post")
+
+    def test_update_post_as_user(self):
+        url = f'/api/posts/{self.post.id}/'
+        data = {"content": "Updated content for own post"}
+
+        self.client.force_authenticate(user=self.user, token=self.access_token)
+        response = self.client.patch(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self.post.content, "Content of author's post")
+
+    def test_delete_post_as_user(self):
+        url = f'/api/posts/{self.post.id}/'
+
+        self.client.force_authenticate(user=self.user, token=self.access_token)
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Post.objects.count(), 1)
+
+# Model : Users, Role : Unauthorized
+class UserUnauthorizedTest(APITestCase):
+
     def test_create_user_unauthorized(self):
         url = '/api/users/'
         data = {
@@ -507,13 +430,14 @@ class UserCreateUnauthorizedTest(APITestCase):
         
         response = self.client.post(url, data)
         
+        # Assuming user creation is allowed for unauthenticated users
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(User.objects.get(username="newuser").email, "newuser@example.com")
 
-class UserRetrieveUnauthorizedTest(APITestCase):
-    def test_retrieve_post_as_user(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        author = User.objects.create(username="author", email="author@example.com", role="author")
+    def test_retrieve_users_unauthorized(self):
+        User.objects.create(username="user", email="user@example.com", role="user")
+        User.objects.create(username="author", email="author@example.com", role="author")
         
         url = '/api/users/'
         
@@ -521,8 +445,6 @@ class UserRetrieveUnauthorizedTest(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-
-class UserUpdateUnauthorizedTest(APITestCase):
     def test_update_user_unauthorized(self):
         user = User.objects.create(username="user", email="user@example.com", role="user")
         url = f'/api/users/{user.id}/'
@@ -534,7 +456,6 @@ class UserUpdateUnauthorizedTest(APITestCase):
         user.refresh_from_db()
         self.assertEqual(user.email, "user@example.com")
 
-class UserDeleteUnauthorizedTest(APITestCase):
     def test_delete_user_unauthorized(self):
         user = User.objects.create(username="user", email="user@example.com", role="user")
         url = f'/api/users/{user.id}/'
@@ -543,10 +464,10 @@ class UserDeleteUnauthorizedTest(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(User.objects.count(), 1)
-        
-        
-        
-class PostCreateUnauthorizedTest(APITestCase):
+
+# Model : Posts, Role : Unauthorized
+class PostUnauthorizedTest(APITestCase):
+
     def test_create_post_unauthorized(self):
         url = '/api/posts/'
         data = {
@@ -560,23 +481,19 @@ class PostCreateUnauthorizedTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(Post.objects.count(), 0)
 
-class PostRetrieveUnauthorizedTest(APITestCase):
     def test_retrieve_post_unauthorized(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
         author = User.objects.create(username="author", email="author@example.com", role="author")
         post = Post.objects.create(title="Unauthorized Post", content="Content of unauthorized post", author=author)
-
         
         url = f'/api/posts/{post.id}/'
         response = self.client.get(url)
         
+        # Expect 401 unless public access is explicitly allowed
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["title"], "Unauthorized Post")
 
-class PostUpdateUnauthorizedTest(APITestCase):
     def test_update_post_unauthorized(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        post = Post.objects.create(title="Unauthorized Post", content="Content of unauthorized post", author=user)
+        author = User.objects.create(username="author", email="author@example.com", role="author")
+        post = Post.objects.create(title="Unauthorized Post", content="Content of unauthorized post", author=author)
         
         url = f'/api/posts/{post.id}/'
         data = {"content": "Updated content for unauthorized post"}
@@ -587,10 +504,9 @@ class PostUpdateUnauthorizedTest(APITestCase):
         post.refresh_from_db()
         self.assertEqual(post.content, "Content of unauthorized post")
 
-class PostDeleteUnauthorizedTest(APITestCase):
     def test_delete_post_unauthorized(self):
-        user = User.objects.create(username="user", email="user@example.com", role="user")
-        post = Post.objects.create(title="Unauthorized Post", content="Content of unauthorized post", author=user)
+        author = User.objects.create(username="author", email="author@example.com", role="author")
+        post = Post.objects.create(title="Unauthorized Post", content="Content of unauthorized post", author=author)
         
         url = f'/api/posts/{post.id}/'
         
@@ -599,17 +515,6 @@ class PostDeleteUnauthorizedTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(Post.objects.count(), 1)
 
-        
-
-
-        
-        
 
 
 
-
-
-        
-
-
->>>>>>> 5ac7abc3bc02d0d285ef8bad3406c2c3e3db3af9
