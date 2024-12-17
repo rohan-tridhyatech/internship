@@ -2,6 +2,10 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
+def resize_image(image, width, height):
+    resized_image =  cv2.resize(image, (width, height), interpolation=cv2.INTER_AREA)
+    return resized_image
+ 
 
 def apply_filter(image, filter_option, blur_ksize, edge_thresh1, edge_thresh2):
     # Convert to grayscale for processing
