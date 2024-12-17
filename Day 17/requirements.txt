@@ -3,4 +3,6 @@ matplotlib
 scipy
 pillow
 opencv-python
+opencv-contrib-python
 streamlit
+pylint 
