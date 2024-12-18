@@ -1,0 +1,9 @@
+numpy
+matplotlib
+scipy
+pillow
+opencv-python
+opencv-contrib-python
+streamlit
+pylint 
+image_processing
