@@ -1,0 +1,8 @@
+numpy
+pandas
+textblob
+swifter
+nltk
+emoji
+spacy
+en_core_web_sm
