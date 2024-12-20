@@ -5,3 +5,4 @@ swifter
 nltk
 emoji
 spacy
+scikit-learn
