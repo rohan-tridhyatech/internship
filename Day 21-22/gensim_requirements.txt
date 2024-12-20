@@ -1,4 +1,7 @@
 gensim==4.3.3
 numpy==1.26.4
 scipy==1.13.1
-wget
+pandas
+plotly
+nltk
+nbformat
