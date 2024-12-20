@@ -3,4 +3,4 @@
 __pycache__/
 .env
 Datasets/
-Dataset
+*GoogleNews-vectors-negative300.bin
