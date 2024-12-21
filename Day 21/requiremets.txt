@@ -6,3 +6,4 @@ nltk
 emoji
 spacy
 scikit-learn
+streamlit

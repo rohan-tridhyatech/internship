@@ -3,4 +3,4 @@
 __pycache__/
 .env
 Datasets/
-Day 21-22/GoogleNews-vectors-negative300.bin.gz
+Day 21/GoogleNews-vectors-negative300.bin.gz
