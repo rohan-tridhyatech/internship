@@ -1,0 +1,10 @@
+numpy
+pandas
+nltk
+scikit-learn
+gensim
+spacy
+tqdm
+joblib
+streamlit
+matplotlib
