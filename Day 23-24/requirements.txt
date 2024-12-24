@@ -1,0 +1,8 @@
+fastapi
+pydantic
+uvicorn
+scikit-learn
+django
+djangorestframework
+djangorestframework-simplejwt
+requests

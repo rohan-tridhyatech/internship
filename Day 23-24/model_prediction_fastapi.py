@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+import uvicorn
 from pydantic import BaseModel
 import pickle
 
@@ -60,3 +61,6 @@ async def predict_sentiments_batch(texts: list[TextInput]):
     except Exception as e:
         # Handle errors and raise an HTTP exception with a 400 status code
         raise HTTPException(status_code=400, detail=str(e))
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=5000) 
