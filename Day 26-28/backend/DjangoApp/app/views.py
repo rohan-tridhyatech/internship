@@ -26,7 +26,10 @@ class VerifyEmailRegistrationAPIView(APIView):
         user = CustomUser.objects.filter(email=email).first()
         
         if user and user.otp == otp and user.otp_expiration > now():
-            user.generate_otp()
+            user.is_active = True
+            user.otp = None 
+            user.otp_expiration = None
+            user.save()
             return Response({'detail': 'Email verified successfully.'}, status=status.HTTP_200_OK)
 
         return Response({'detail': 'Invalid or expired OTP.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -67,7 +70,10 @@ class VerifyEmailLoginAPIView(APIView):
         user = CustomUser.objects.filter(email=email).first()
 
         if user and user.otp == otp and user.otp_expiration > now():
-            user.generate_otp()
+            user.is_active = True
+            user.otp = None 
+            user.otp_expiration = None
+            user.save()
             refresh = RefreshToken.for_user(user)
             return Response({
                 'refresh': str(refresh),
