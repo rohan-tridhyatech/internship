@@ -10,3 +10,5 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True}
         }
 
+
+

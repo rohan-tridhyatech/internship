@@ -1,6 +1,10 @@
 # myapp/models.py
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.db import models
+from django.utils.timezone import now, timedelta
+import random
+
+
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -22,6 +26,9 @@ class CustomUser(AbstractBaseUser):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
     contact = models.CharField(max_length=15, unique=False)
+    is_active = models.BooleanField(default=False)
+    otp = models.CharField(max_length=6, blank=True, null=True)
+    otp_expiration = models.DateTimeField(blank=True, null=True)
 
     # Use the custom manager
     objects = UserManager()
@@ -35,3 +42,8 @@ class CustomUser(AbstractBaseUser):
             self.set_password(self.password) 
 
         super().save(*args, **kwargs)
+        
+    def generate_otp(self):
+        self.otp = str(random.randint(100000, 999999))
+        self.otp_expiration = now() + timedelta(minutes=10)  # OTP valid for 10 minutes
+        self.save()    
