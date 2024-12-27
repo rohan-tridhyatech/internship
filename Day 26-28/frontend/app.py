@@ -176,14 +176,21 @@ def register():
                 st.error(error_message)
     st.markdown("</div>", unsafe_allow_html=True)
 
+def image_processing():
+    pass
+
+def movie_recommendation():
+    pass
+
+
 def main():
     st.markdown("<div class='title'>Django Auth API Frontend</div>", unsafe_allow_html=True)
 
     # Use option_menu for navigation
     menu = option_menu(
         menu_title=None,  # No menu title
-        options=["Register", "Login"],  # Menu options
-        icons=["person-plus", "key"],  # Icons for each option
+        options=["Register", "Login", "Movies","Image"],  # Menu options
+        icons=["person-plus", "key", "film", "image"],  # Icons for each option
         default_index=1,  # Default to "Login"
         orientation="horizontal",  # Horizontal layout
         styles={
@@ -199,11 +206,14 @@ def main():
         },
     )
 
-    # Render the selected page
     if menu == "Login":
         login()
     elif menu == "Register":
         register()
+    elif menu == "Movies":
+        movie_recommendation()  
+    elif menu == "Image":
+        image_processing()
 
 
 if __name__ == "__main__":

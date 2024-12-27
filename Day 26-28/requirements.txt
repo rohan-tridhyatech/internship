@@ -3,3 +3,7 @@ extra-streamlit-components
 django
 djangorestframework
 djangorestframework-simplejwt
+numpy
+pandas
+scikit-learn
+cdifflib
