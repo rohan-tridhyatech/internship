@@ -1,5 +1,0 @@
-dlib
-face_recognition
-matplotlib
-opencv-python
-Pillow
